@@ -9,12 +9,15 @@ ingestr supports Smartsheet as a source.
 The URI format for Smartsheet is as follows:
 
 ```plaintext
-smartsheet://?access_token=<access_token>
+smartsheet://?access_token=<access_token>&smartsheet_id=<sheet_id>
 ```
 
 URI parameters:
 
-- `access_token`: Your Smartsheet API access token.
+- `access_token` (required): Your Smartsheet API access token.
+- `smartsheet_id` (optional): The ID of the sheet to ingest. This is an
+  alternative to passing the sheet ID via `--source-table`. If both are
+  provided, `--source-table` takes priority.
 
 The URI is used to connect to the Smartsheet API for extracting data. You can generate an access token in Smartsheet by navigating to Account > Personal Settings > API Access.
 
@@ -29,14 +32,23 @@ To set up a Smartsheet integration, you'll need an API Access Token.
 5. Give your token a name and click "OK".
 6. Copy the generated token. This will be your `access_token`.
 
-The source table you'll use for ingestr will be the `sheet_id` of the Smartsheet you want to ingest. You can find the `sheet_id` by opening the sheet in Smartsheet and going to File > Properties. The Sheet ID will be listed there.
+The sheet to ingest is identified by its `sheet_id`. You can find the `sheet_id` by opening the sheet in Smartsheet and going to File > Properties. The Sheet ID will be listed there. You can pass it either via `--source-table` or as the `smartsheet_id` URI parameter — at least one must be provided, and `--source-table` wins when both are set.
 
-Let's say your access token is `YOUR_ACCESS_TOKEN` and the sheet ID is `1234567890123456`, here's a sample command that will copy the data from Smartsheet into a DuckDB database:
+Let's say your access token is `YOUR_ACCESS_TOKEN` and the sheet ID is `1234567890123456`. Here's a sample command using `--source-table`:
 
 ```sh
 ingestr ingest \
     --source-uri 'smartsheet://?access_token=YOUR_ACCESS_TOKEN' \
     --source-table '1234567890123456' \
+    --dest-uri 'duckdb:///smartsheet_data.duckdb' \
+    --dest-table 'des.my_sheet_data'
+```
+
+Equivalently, with the sheet ID baked into the URI:
+
+```sh
+ingestr ingest \
+    --source-uri 'smartsheet://?access_token=YOUR_ACCESS_TOKEN&smartsheet_id=1234567890123456' \
     --dest-uri 'duckdb:///smartsheet_data.duckdb' \
     --dest-table 'des.my_sheet_data'
 ```
